@@ -3,9 +3,9 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
-//import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous
@@ -13,16 +13,23 @@ public class Autonomous
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
 	
+	private CubeManipulation Cube;
+	private GearBox gearBox;
+	
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
 		
 		this.robot = robot;		
+		Cube = new CubeManipulation(robot); //Why is this erroring?
+		gearBox = new GearBox(robot); //Why is this erroring?
 	}
 
 	public void dispose()
 	{
 		Util.consoleLog();
+		if (gearBox != null) gearBox.dispose();
+		if (Cube != null) Cube.dispose();
 	}
 	
 	private boolean isAutoActive()
@@ -41,27 +48,190 @@ public class Autonomous
 
 		//TODO Encoder likely used, so just commenting out.
 		// Initialize encoder.
-		//Devices.encoder.reset();
+		Devices.encoder.reset();
         
 		//TODO NavX likely used, so just commenting out.
         // Set gyro/NavX to heading 0.
         //robot.gyro.reset();
-		//Devices.navx.resetYaw();
+		Devices.navx.resetYaw();
 		
         // Wait to start motors so gyro will be zero before first movement.
-        //Timer.delay(.50);
+        Timer.delay(.50);
 
 		switch (program)
 		{
 			case 0:		// No auto program.
-				break;
+					
+					break;
+			
+			case 1: 	//goo.gl/MKYWUX <= Visualization of auto
+					sideBaseline();
+					break;
+			
+			case 2:		//https://goo.gl/RvUmTV <= Visualization of auto
+					centerBaseline();
+					break;
+				
+			case 3:		//goo.gl/TBU4oK <= Visualization of auto
+					switch (robot.gameMessage.charAt(0))
+					{
+						case 'L':
+							centerSwitchLeft();
+							break;
+							
+						case 'R':
+							
+							centerSwitchRight();
+							break;
+							
+						default:
+							centerBaseline();
+							break;
+					}
+					break;
+				
+			case 4:		//goo.gl/x5PFJf <= Visualization of auto
+				switch (robot.gameMessage.charAt(0))
+				{
+					case 'L':
+						leftSwitch();
+						break;
+					case 'R':
+						if (robot.gameMessage.charAt(1) == 'L')
+						{
+							leftScale();
+						} 
+						else 
+						{
+							leftZone();	
+						}
+					
+						break;
+				}
+					
+					break;
+			
+			case 5: 	//goo.gl/MaJi3d <= Visualization of auto
+				switch (robot.gameMessage.charAt(0))
+				{
+					case 'R':
+						rightSwitch();
+						break;
+						
+					case 'L':
+						if (robot.gameMessage.charAt(1) == 'R')
+						{
+							rightScale();
+						}
+						else
+						{
+							rightZone();
+						}
+						break;
+				}
+					break;
 		}
 		
 		Util.consoleLog("end");
 	}
+	
+	private void sideBaseline()
+	{
+		autoDrive(0.50, 1000, true); //Find actual values for this - Drive forward, crossing the baseline
+	}
+	
+	private void centerBaseline()
+	{
+		autoDrive(0.50, 500, true); //Find actual values for this - Drive forward
+		autoRotate(0.50, 45); //Find actual values for this - Rotate so the robot is facing away from the switch
+		autoDrive(0.50, 500, true); //Find actual values for this - Drive forward, away from the switch towards the scale
+	}
+	
+	private void centerSwitchLeft()
+	{
+		Cube.CubeRaise();
+		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
+		autoRotate(-0.50, 90); //Find actual values for this - Turn to the left
+		autoDrive(0.50, 200, true); //Find actual values for this - Move forward, face the switch
+		Cube.CubeOuttake();
+		autoDrive(0.50, -200, true); //Find actual values for this - Drive backwards, away from the switch
+		Cube.CubeLower();
+		
+	}
+	
+	private void centerSwitchRight()
+	{
+		Cube.CubeRaise();
+		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoDrive(0.50, 200, true); //Find actual values for this - Move forward, face the switch
+		Cube.CubeOuttake();
+		autoDrive(0.50, -200, true); //Find actual values for this - Drive backwards, away from the switch
+		Cube.CubeLower();
+	}
+	
+	private void leftSwitch()
+	{
+		Cube.CubeRaise();
+		autoDrive(0.50, 500, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
+		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
+		Cube.CubeOuttake();
+		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the switch
+		Cube.CubeLower();
+	}
+	
+	private void rightSwitch()
+	{
+		Cube.CubeRaise();
+		autoDrive(0.50, 500, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
+		Cube.CubeOuttake();
+		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the switch
+		Cube.CubeLower();
+	}
+	
+	private void leftScale()
+	{
+		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
+		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
+		Cube.CubeOuttake();
+		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
+		Cube.CubeLower();
+	}
+	
+	private void rightScale()
+	{
+		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
+		Cube.CubeOuttake();
+		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
+		Cube.CubeLower();
+	}
+	
+	private void leftZone()
+	{
+		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		autoDrive(0.50, 600, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
+		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
+	}
+	
+	private void rightZone()
+	{
+		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		autoDrive(0.50, 600, true); //Find actual values for this - Move forward
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
+	}
 
 	//TODO May likely be used, will need modification to work.
-	/*
+	
 	// Auto drive in set direction and power for specified encoder count. Stops
 	// with or without brakes on CAN bus drive system. Uses gyro/NavX to go straight.
 	
@@ -128,5 +298,8 @@ public class Autonomous
 		
 		Devices.robotDrive.tankDrive(0, 0);
 	}
-	*/
+	
+	
+	
+	
 }
