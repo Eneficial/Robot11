@@ -11,7 +11,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 class Teleop
 {
-	private final Robot 		robot;
+	private final Robot 				robot;
+	private final CubeManipulation	 	Cube;
+	private final GearBox 				gearBox;
+	private final Climber				Climber;
+	
 	public  JoyStick			rightStick, leftStick, utilityStick;
 	public  LaunchPad			launchPad;
 	private boolean				autoTarget, invertDrive, altDriveMode;
@@ -19,11 +23,14 @@ class Teleop
 
 	// Constructor.
 
-	Teleop(Robot robot)
+	Teleop(Robot robot, CubeManipulation Cube, GearBox gearBox, Climber climber) //This keeps erroring... Why?
 	{
 		Util.consoleLog();
 
 		this.robot = robot;
+		Cube = new CubeManipulation(robot);
+		gearBox = new GearBox(robot);
+		Climber = new Climber(robot);
 
 		vision = Vision.getInstance(robot);
 	}
@@ -238,15 +245,36 @@ class Teleop
 
 			switch(control.id)
 			{
-			//Example of case:
-			/*
-			case BUTTON_NAME_HERE:
+			
+			case BUTTON_BLUE: //Forklift arms drop
 				if (launchPadEvent.control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
+					Climber.armExtend(); //fix this
 				break;
-			*/
+				
+				case BUTTON_RED_RIGHT: //Open and close wrist - Toggle wrist folding in or out.
+					if (launchPadEvent.control.latchedState) 
+						Cube.CubeOpen();
+					else
+						Cube.CubeClose();
+				break;
+					
+			case BUTTON_RED: //Gear shifting
+				if (launchPadEvent.control.latchedState)
+					gearBox.highGear();
+				else
+					gearBox.lowGear();
+				break;
+					
+			case BUTTON_BLUE_RIGHT: //Cube intake
+				if (launchPadEvent.control.latchedState)
+					Cube.CubeIntake();
+				else
+					Cube.CubeStop();
+				break;
+					
+			case BUTTON_YELLOW: //Something about the winch... Still confused about this whole winch thing
+				break;
+				
 			default:
 				break;
 			}
@@ -265,17 +293,19 @@ class Teleop
 
 			switch(control.id)
 			{
-			// Example of Rocker:
-			/*
-			case ROCKER_NAME_HERE:
-				if (control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			*/
-			default:
-				break;
+			
+				case ROCKER_LEFT_FRONT:
+					if (control.latchedState)
+						//Switch to Camera A
+					break;
+				
+				case ROCKER_RIGHT:
+					if (control.latchedState)
+						//Switch to Camera B
+					break;
+			
+				default:
+					break;
 			}
 		}
 	}
@@ -361,15 +391,22 @@ class Teleop
 
 			switch(button.id)
 			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
+			case TRIGGER: //Open and close wrist(?)
 				if (button.latchedState)
-					DoOneThing();
+					Cube.CubeOpen();
 				else
-					DoOtherThing();
+					Cube.CubeClose();
+					break;
+					
+			case TOP_MIDDLE: //Manually toggle Claw motors in ejecting direction.
+				if (button.latchedState)
+					Cube.CubeOuttake();
 				break;
-			 */
+				
+			case TOP_BACK: //Manually toggle Claw motors in the intakeing direction.
+				if (button.latchedState)
+					Cube.CubeIntake();
+				break;
 			default:
 				break;
 			}

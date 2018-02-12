@@ -1,10 +1,21 @@
 //""""Pseudocode"""" based on my understanding of what our robot's climber will be. 
+//Still got no clue what to do here
 package Team4450.Robot11;
+
+import Team4450.Lib.Util;
 
 public class Climber {
 	
+	private Robot robot;
+	
+	public Climber(Robot robot) 
+	{
+		Util.consoleLog();
+		this.robot = robot;
+	}
+	
 	public void armExtend() {
-		//Extends the arms that will be raising the robots
+		//Deploys the arms that other robots will be on
 	}
 	
 	public void armRaise() {

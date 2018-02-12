@@ -3,9 +3,7 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous
@@ -13,8 +11,8 @@ public class Autonomous
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
 	
-	private CubeManipulation Cube;
-	private GearBox gearBox;
+	private final CubeManipulation Cube;
+	private final GearBox gearBox;
 	
 	Autonomous(Robot robot)
 	{
@@ -105,9 +103,11 @@ public class Autonomous
 						{
 							leftZone();	
 						}
-					
+						
+					default:
+						centerBaseline();
 						break;
-				}
+				} 
 					
 					break;
 			
@@ -127,6 +127,8 @@ public class Autonomous
 						{
 							rightZone();
 						}
+					default:
+						centerBaseline();
 						break;
 				}
 					break;
@@ -151,7 +153,7 @@ public class Autonomous
 	{
 		Cube.CubeRaise();
 		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
-		autoRotate(-0.50, 90); //Find actual values for this - Turn to the left
+		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
 		autoDrive(0.50, 200, true); //Find actual values for this - Move forward, face the switch
 		Cube.CubeOuttake();
 		autoDrive(0.50, -200, true); //Find actual values for this - Drive backwards, away from the switch
@@ -163,7 +165,7 @@ public class Autonomous
 	{
 		Cube.CubeRaise();
 		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
 		autoDrive(0.50, 200, true); //Find actual values for this - Move forward, face the switch
 		Cube.CubeOuttake();
 		autoDrive(0.50, -200, true); //Find actual values for this - Drive backwards, away from the switch
@@ -185,7 +187,7 @@ public class Autonomous
 	{
 		Cube.CubeRaise();
 		autoDrive(0.50, 500, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
 		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
 		Cube.CubeOuttake();
 		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the switch
@@ -207,7 +209,7 @@ public class Autonomous
 	{
 		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
 		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
 		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
 		Cube.CubeOuttake();
 		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
@@ -226,7 +228,7 @@ public class Autonomous
 	{
 		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
 		autoDrive(0.50, 600, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
+		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
 		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
 	}
 
@@ -246,7 +248,7 @@ public class Autonomous
 
 		Devices.encoder.reset();
 		Devices.navx.resetYaw();
-		
+		/*
 		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
 		{
 			LCD.printLine(4, "encoder=%d", Devices.encoder.get());
@@ -271,12 +273,12 @@ public class Autonomous
 			// right so we set the turn value to - because - is a turn left which corrects our right
 			// drift.
 			
-			Devices.robotDrive.drive(power, -angle * gain);
+			//Devices.robotDrive.drive(power, -angle * gain);
 			
 			Timer.delay(.020);
 		}
-
-		Devices.robotDrive.tankDrive(0, 0, true);				
+*/
+		//Devices.robotDrive.tankDrive(0, 0, true);				
 		
 		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
 	}
@@ -292,11 +294,11 @@ public class Autonomous
 		
 		Devices.navx.resetYaw();
 		
-		Devices.robotDrive.tankDrive(power, -power);
+		//Devices.robotDrive.tankDrive(power, -power);
 
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
+		//while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
 		
-		Devices.robotDrive.tankDrive(0, 0);
+		//Devices.robotDrive.tankDrive(0, 0);
 	}
 	
 	
