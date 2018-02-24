@@ -10,8 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class CubeManipulation {
 
 	private Robot robot;
-	//private Teleop teleop;
-	
+
 	private PIDController PIDController;
 	
 	public CubeManipulation(Robot robot) 
@@ -19,12 +18,13 @@ public class CubeManipulation {
 		Util.consoleLog();
 		this.robot = robot;
 		CubeStop();
+		PIDController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, null);
 	}
 
 	public void dispose() {
 		Util.consoleLog();
-		//Dispose stuff
-		//if (motor != null) motor.delete();
+		PIDController.disable();
+		PIDController.free();
 	}
 	
 	public void CubeIntake() {
@@ -50,16 +50,6 @@ public class CubeManipulation {
 		CubeClose();
 	}
 	
-	public void CubeRaise() {
-		Util.consoleLog();
-		//TODO: Write super cool bug-free code that raises the cube
-	}
-	
-	public void CubeLower() {
-		Util.consoleLog();
-		//TODO: Write super cool bug-free code that lowers the cube
-	}
-	
 	public void CubeOpen() { //Is done with the wrist
 		Util.consoleLog();
 		Devices.grabValve.SetB(); //Check this
@@ -69,5 +59,28 @@ public class CubeManipulation {
 		Util.consoleLog();
 		Devices.grabValve.SetA(); //Check this
 	}
+	
+	public void CubeRaise(int PIDCount) {
+		Util.consoleLog();
+		if (PIDCount != 0)
+		{
+			PIDController.setPID(0.1, 0.1, 0.1, 1);
+			PIDController.setSetpoint(PIDCount);
+			PIDController.enable();
+		}
+	
+	}
+	
+	public void CubeHold(int PIDCount) {
+		Util.consoleLog();
+		if (PIDCount != 0)
+		{
+			PIDController.setPID(0.1, 0.1, 0.1, 1);
+			PIDController.setSetpoint(Devices.winchEncoder.get());
+			PIDController.enable();
+		}
+	}
+	
+	
 	
 }

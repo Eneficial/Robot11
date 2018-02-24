@@ -20,7 +20,7 @@ public class Devices
 {
 	  // Motor CAN ID/PWM port assignments (1=left-front, 2=left-rear, 3=right-front, 4=right-rear)
 	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
-	  private static WPI_TalonSRX liftMotor, cubeGrabMotor1, cubeGrabMotor2;
+	  private static WPI_TalonSRX	liftMotor, cubeGrabMotor1, cubeGrabMotor2;
 	  public static SpeedControllerGroup cubeGrabMotors;
 	  
 	  public static DifferentialDrive	robotDrive;
@@ -42,10 +42,11 @@ public class Devices
 
 	  public final static DriverStation				ds = DriverStation.getInstance();
 
-	  public static NavX				navx;
+	  public static NavX							navx;
 	  
-	  public final static Encoder 	encoder = new Encoder(3, 4, true, EncodingType.k4X);
-	  public final static Encoder	winchEncoder = new Encoder(2, 3, true, EncodingType.k4X);
+	  public final static Encoder 					encoder1 = new Encoder(0, 1, true, EncodingType.k4X);
+	  public final static Encoder 					encoder2 = new Encoder(2, 3, true, EncodingType.k4X);
+	  public final static Encoder					winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 	  
 	  // Create RobotDrive object for CAN Talon controllers.
 	  

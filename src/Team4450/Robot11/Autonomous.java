@@ -19,8 +19,8 @@ public class Autonomous
 		Util.consoleLog();
 		
 		this.robot = robot;		
-		Cube = new CubeManipulation(robot); //Why is this erroring?
-		gearBox = new GearBox(robot); //Why is this erroring?
+		Cube = new CubeManipulation(robot); 
+		gearBox = new GearBox(robot); 
 	}
 
 	public void dispose()
@@ -46,7 +46,9 @@ public class Autonomous
 
 		//TODO Encoder likely used, so just commenting out.
 		// Initialize encoder.
-		Devices.encoder.reset();
+		Devices.encoder1.reset();
+		Devices.encoder2.reset();
+		Devices.winchEncoder.reset();
         
 		//TODO NavX likely used, so just commenting out.
         // Set gyro/NavX to heading 0.
@@ -56,7 +58,7 @@ public class Autonomous
         // Wait to start motors so gyro will be zero before first movement.
         Timer.delay(.50);
 
-		switch (program)
+		switch (program) //TODO: Pseudo-code 2 cube autos (maybe 3 block autos?)
 		{
 			case 0:		// No auto program.
 					
@@ -97,7 +99,7 @@ public class Autonomous
 					case 'R':
 						if (robot.gameMessage.charAt(1) == 'L')
 						{
-							leftScale();
+							centerBaseline();
 						} 
 						else 
 						{
@@ -121,7 +123,7 @@ public class Autonomous
 					case 'L':
 						if (robot.gameMessage.charAt(1) == 'R')
 						{
-							rightScale();
+							centerBaseline();
 						}
 						else
 						{
@@ -131,7 +133,20 @@ public class Autonomous
 						centerBaseline();
 						break;
 				}
+				
+			case 6: //2 cube switch auto if color on left
+				switch (robot.gameMessage.charAt(0))
+				{
+					case 'L':
+						twoSwitch();
+						break;
+						
+					case 'R':
+						centerBaseline();
+						break;
 					break;
+				}
+				break;
 		}
 		
 		Util.consoleLog("end");
@@ -231,6 +246,22 @@ public class Autonomous
 		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
 		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
 	}
+	
+	private void twoSwitch()
+	{
+		Cube.CubeRaise(); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		autoDrive(0.70, 600, true); //Find actual values for this - Move forward
+		autoRotate(-0.50, 90); //Find actual values for this - Turn to face the switch
+		Cube.CubeOuttake(); //Outtake the cube
+		Cube.CubeLower();
+		autoRotate(-0.50, 50); //Find actual values for this - Turn to get the cube in the zone by the scale
+		autoDrive(0.30, 200, true); //Find actual values for this - Move forward a little bit
+		Cube.CubeIntake(); //Intake the cube on the side closest to the switch
+		autoDrive(-0.30, 200, true); //Find actual values for this - Move backwards
+		autoRotate(0.50, 50); //Find actual values for this - Rotate back in front of the scale
+		Cube.CubeOuttake(); //Outtake the cube
+		Cube.CubeLower();
+	}
 
 	//TODO May likely be used, will need modification to work.
 	
@@ -246,7 +277,7 @@ public class Autonomous
 
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
-		Devices.encoder.reset();
+		Devices.encoder1.reset();
 		Devices.navx.resetYaw();
 		/*
 		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
@@ -280,7 +311,7 @@ public class Autonomous
 */
 		//Devices.robotDrive.tankDrive(0, 0, true);				
 		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
+		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder1.get()));
 	}
 	
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.

@@ -25,4 +25,9 @@ public class Climber {
 	public void selfRaise() {
 		//Raises self (and alliance partners) using the lift bar
 	}
+
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
 }

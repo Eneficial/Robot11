@@ -23,7 +23,7 @@ class Teleop
 
 	// Constructor.
 
-	Teleop(Robot robot, CubeManipulation Cube, GearBox gearBox, Climber climber) //This keeps erroring... Why?
+	Teleop(Robot robot)
 	{
 		Util.consoleLog();
 
@@ -40,11 +40,13 @@ class Teleop
 	void dispose()
 	{
 		Util.consoleLog();
-
 		if (leftStick != null) leftStick.dispose();
 		if (rightStick != null) rightStick.dispose();
 		if (utilityStick != null) utilityStick.dispose();
 		if (launchPad != null) launchPad.dispose();
+		if (gearBox != null) gearBox.dispose();
+		if (Climber != null) Climber.dispose();
+		if (Cube != null)	Cube.dispose();
 	}
 
 	void OperatorControl()
