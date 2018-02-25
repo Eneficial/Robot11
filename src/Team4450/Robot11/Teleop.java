@@ -171,7 +171,7 @@ class Teleop
 						// right so we set the turn value to - because - is a turn left which corrects our right
 						// drift.
 
-						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, true);
+						Devices.robotDrive.curvatureDrive(rightY, angle * gain, true);
 
 						steeringAssistMode = true;
 					}

@@ -33,7 +33,7 @@ public class GearBox {
 	public void highGear() {
 		Util.consoleLog();
 		highGear = true;
-		Devices.shiftGears.SetB();
+		Devices.shiftGears.SetA();
 		dashDisplay();
 	}
 	
@@ -41,7 +41,7 @@ public class GearBox {
 	public void lowGear() {
 		Util.consoleLog();
 		lowGear = true;
-		Devices.shiftGears.SetA();
+		Devices.shiftGears.SetB();
 		dashDisplay();
 	}
 

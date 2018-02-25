@@ -97,6 +97,9 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
+   		
+   		Devices.encoder1.setReverseDirection(true);
+   		Devices.encoder2.setReverseDirection(true);
              
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
