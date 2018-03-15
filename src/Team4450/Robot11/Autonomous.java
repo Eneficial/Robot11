@@ -229,24 +229,24 @@ public class Autonomous
 	
 	private void leftScale()
 	{
-		Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
 		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
 		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
 		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
-		Cube.CubeOuttake();
+		//Cube.CubeOuttake();
 		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
-		Cube.CubeRaise(program);
+		//Cube.CubeRaise(program);
 	}
 	
 	private void rightScale()
 	{
-		Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
 		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
 		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
 		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
-		Cube.CubeOuttake();
+		//Cube.CubeOuttake();
 		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
-		Cube.CubeRaise(program);
+		//Cube.CubeRaise(program);
 	}
 	
 	private void leftZone()
@@ -271,18 +271,18 @@ public class Autonomous
 	
 	private void twoSwitch()
 	{
-		Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
+		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
 		autoDrive(0.70, 600, true); //Find actual values for this - Move forward
 		autoRotate(-0.50, 90); //Find actual values for this - Turn to face the switch
-		Cube.CubeOuttake(); //Outtake the cube
-		Cube.CubeRaise(program);
+		//Cube.CubeOuttake(); //Outtake the cube
+		//Cube.CubeRaise(program);
 		autoRotate(-0.50, 50); //Find actual values for this - Turn to get the cube in the zone by the scale
 		autoDrive(0.30, 200, true); //Find actual values for this - Move forward a little bit
-		Cube.CubeIntake(); //Intake the cube on the side closest to the switch
+		//Cube.CubeIntake(); //Intake the cube on the side closest to the switch
 		autoDrive(-0.30, 200, true); //Find actual values for this - Move backwards
 		autoRotate(0.50, 50); //Find actual values for this - Rotate back in front of the scale
-		Cube.CubeOuttake(); //Outtake the cube
-		Cube.CubeRaise(program);
+		//Cube.CubeOuttake(); //Outtake the cube
+		//Cube.CubeRaise(program);
 	}
 
 	//TODO May likely be used, will need modification to work.

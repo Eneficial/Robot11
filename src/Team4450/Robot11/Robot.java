@@ -1,7 +1,7 @@
 /**
  * 2018 competition robot code.
  *
- * For Robot "TBA" built for FRC game "FIRST POWER UP".
+ * For Robot "Odyssey" built for FRC game "FIRST POWER UP".
 */
 
 package Team4450.Robot11;
@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "HMW11-02.24.18-01";
+  static final String  	PROGRAM_NAME = "HMW11-03.14.18-01";
 
   public Properties		robotProperties;
   
@@ -60,7 +60,6 @@ public class Robot extends SampleRobot
   }
     
   // Initialization, called at class start up.
-  
   public void robotInit()
   {
    	try
@@ -243,10 +242,6 @@ public class Robot extends SampleRobot
           Util.consoleLog("end");
        }
        catch (Exception e) {Util.logException(e);} 
-  }
-    
-  public void test() 
-  {
   }
 
   // Start usb camera server for single camera.

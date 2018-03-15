@@ -1,4 +1,3 @@
-//README: This is my gearbox code from last year - See if it can be reused with minor changes for this year's robot. 
 package Team4450.Robot11;
 
 import Team4450.Lib.*;
@@ -19,7 +18,7 @@ public class GearBox {
 	}
 	
 	public void dispose() {
-		// TODO Auto-generated method stub
+		Util.consoleLog();
 		
 	}
 	
@@ -32,17 +31,27 @@ public class GearBox {
 	
 	public void highGear() {
 		Util.consoleLog();
-		highGear = true;
+		lowGear = false; //Dashboard stuff
 		Devices.shiftGears.SetA();
+		highGear = true; //Dashboard stuff
 		dashDisplay();
 	}
 	
 	
 	public void lowGear() {
 		Util.consoleLog();
-		lowGear = true;
+		highGear = false; //Dashboard stuff
 		Devices.shiftGears.SetB();
+		lowGear = true; //Dashboard stuff
 		dashDisplay();
+	}
+	
+	public boolean dashboardHigh() {
+		return highGear;
+	}
+	
+	public boolean dashboardLow() {
+		return lowGear;
 	}
 
 	

@@ -255,9 +255,9 @@ class Teleop
 				
 				case BUTTON_RED_RIGHT: //Open and close wrist - Toggle wrist folding in or out.
 					if (launchPadEvent.control.latchedState) 
-						Cube.CubeOpen();
+						Cube.cubeOpen();
 					else
-						Cube.CubeClose();
+						Cube.cubeClose();
 				break;
 					
 			case BUTTON_RED: //Gear shifting
@@ -269,7 +269,7 @@ class Teleop
 					
 			case BUTTON_BLUE_RIGHT: //Cube intake
 				if (launchPadEvent.control.latchedState)
-					Cube.CubeIntake();
+					Cube.cubeOpen();
 				else
 					Cube.CubeStop();
 				break;
@@ -395,19 +395,19 @@ class Teleop
 			{
 			case TRIGGER: //Open and close wrist(?)
 				if (button.latchedState)
-					Cube.CubeOpen();
+					Cube.cubeOpen();
 				else
-					Cube.CubeClose();
+					Cube.cubeClose();
 					break;
 					
 			case TOP_MIDDLE: //Manually toggle Claw motors in ejecting direction.
 				if (button.latchedState)
-					Cube.CubeOuttake();
+					//Cube.CubeOuttake();
 				break;
 				
 			case TOP_BACK: //Manually toggle Claw motors in the intakeing direction.
 				if (button.latchedState)
-					Cube.CubeIntake();
+					//Cube.CubeIntake();
 				break;
 			default:
 				break;

@@ -12,9 +12,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Devices
 {
@@ -22,6 +26,12 @@ public class Devices
 	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
 	  private static WPI_TalonSRX	liftMotor, cubeGrabMotor1, cubeGrabMotor2;
 	  public static SpeedControllerGroup cubeGrabMotors;
+	  
+	  //Climber things
+	  public final static Talon						climberWinch = new Talon(0);
+	  public final static Talon 					partnerWinch = new Talon(1); //Is my understanding of the "liftWinch" correct? Is that the arm?
+	  public final static Servo						deployArms = new Servo(2);
+	  public final static Servo						balanceServo = new Servo(3);
 	  
 	  public static DifferentialDrive	robotDrive;
 
@@ -36,17 +46,23 @@ public class Devices
 	  public final static ValveDA		wristValve = new ValveDA(4);
 	  	
 	  
-	  public final static AnalogInput	pressureSensor = new AnalogInput(0);
+	  public final static AnalogInput				pressureSensor = new AnalogInput(0);
 	  
 	  public final static PowerDistributionPanel	PDP = new PowerDistributionPanel();
 
 	  public final static DriverStation				ds = DriverStation.getInstance();
 
+	  //NavX
 	  public static NavX							navx;
 	  
+	  //Encoders
 	  public final static Encoder 					encoder1 = new Encoder(0, 1, true, EncodingType.k4X);
 	  public final static Encoder 					encoder2 = new Encoder(2, 3, true, EncodingType.k4X);
 	  public final static Encoder					winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
+	  
+	  public static boolean				winchEncoderEnabled = true; //QOL thing
+	  public static DigitalInput		winchSwitcher = new DigitalInput(6);
+	  
 	  
 	  // Create RobotDrive object for CAN Talon controllers.
 	  
@@ -59,6 +75,8 @@ public class Devices
 		  LRCanTalon = new WPI_TalonSRX(2);
 		  RFCanTalon = new WPI_TalonSRX(3);
 		  RRCanTalon = new WPI_TalonSRX(4);
+		  cubeGrabMotor1 = new WPI_TalonSRX(5);
+		  cubeGrabMotor2 = new WPI_TalonSRX(6);
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
@@ -68,7 +86,9 @@ public class Devices
 	      InitializeCANTalon(RRCanTalon);
 	    
 	      InitializeCANTalon(cubeGrabMotor1);
+	      cubeGrabMotor1.setNeutralMode(NeutralMode.Brake);
 	      InitializeCANTalon(cubeGrabMotor2);
+	      cubeGrabMotor2.setNeutralMode(NeutralMode.Brake);
 	      
 	      
 	      // Configure CAN Talons with correct inversions.
@@ -98,7 +118,7 @@ public class Devices
 	  
 	  public static void InitializeCANTalon(WPI_TalonSRX talon)
 	  {
-		  Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
+		  //Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
 
 		  talon.clearStickyFaults(0); //0ms means no blocking.
 		  //talon.enableControl();
@@ -110,6 +130,7 @@ public class Devices
 	  public static void SetCANTalonBrakeMode(boolean brakeMode)
 	  {
 		  Util.consoleLog("brakes on=%b", brakeMode);
+		  SmartDashboard.putBoolean("Breaks", brakeMode);
 		  
 		  NeutralMode newMode;
 		  if (brakeMode) {
@@ -125,24 +146,18 @@ public class Devices
 	  }
 	  
 	  // Set CAN Talon voltage ramp rate. Rate is volts/sec and can be 2-12v.
-	  
-	  /*
-	   * As of right now I'm unable to find a replacement function.
-	  public static void SetCANTalonRampRate(double rate)
+	  public static void SetCANTalonRampRate(double seconds)
 	  {
-		  Util.consoleLog("%f", rate);
+		  Util.consoleLog("%f", seconds);
 		  
-		  LFCanTalon.setVoltageRampRate(rate);
-		  LRCanTalon.setVoltageRampRate(rate);
-		  RFCanTalon.setVoltageRampRate(rate);
-		  RRCanTalon.setVoltageRampRate(rate);
-		  LSlaveCanTalon.setVoltageRampRate(rate);
-		  RSlaveCanTalon.setVoltageRampRate(rate);
+		  LFCanTalon.configOpenloopRamp(seconds, 0);
+		  LRCanTalon.configOpenloopRamp(seconds, 0);
+		  RFCanTalon.configOpenloopRamp(seconds, 0);
+		  RRCanTalon.configOpenloopRamp(seconds, 0);
 	  }
-	  */
+	  
 	  
 	  // Return voltage and current draw for each CAN Talon.
-	  
 	  public static String GetCANTalonStatus()
 	  {
 		  return String.format("%.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f", 
