@@ -77,6 +77,12 @@ class Teleop
 		//Example on how to track button:
 		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_COLOR_HERE);
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_GREEN);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLACK);
 		launchPad.Start();
 
 		leftStick = new JoyStick(Devices.leftStick, "LeftStick", JoyStickButtonIDs.TRIGGER, this);
@@ -250,7 +256,7 @@ class Teleop
 			
 			case BUTTON_BLUE: //Forklift arms drop
 				if (launchPadEvent.control.latchedState)
-					Climber.armExtend(); //fix this
+					//Climber.armExtend(); //fix this
 				break;
 				
 				case BUTTON_RED_RIGHT: //Open and close wrist - Toggle wrist folding in or out.
@@ -269,13 +275,17 @@ class Teleop
 					
 			case BUTTON_BLUE_RIGHT: //Cube intake
 				if (launchPadEvent.control.latchedState)
-					Cube.cubeOpen();
+					Cube.autoIntakeStart();
 				else
-					Cube.CubeStop();
+					Cube.autoIntakeStop();
 				break;
 					
 			case BUTTON_YELLOW: //Something about the winch... Still confused about this whole winch thing
 				break;
+				
+			case BUTTON_BLACK: //Release forks
+				break;
+				
 				
 			default:
 				break;
@@ -302,8 +312,12 @@ class Teleop
 					break;
 				
 				case ROCKER_RIGHT:
-					if (control.latchedState)
-						//Switch to Camera B
+					if (control.latchedState) {
+						Devices.winchEncoderEnabled = true;
+						Devices.winchEncoder.reset();
+					} else {
+						Devices.winchEncoderEnabled = false;
+					}
 					break;
 			
 				default:
@@ -362,14 +376,14 @@ class Teleop
 			switch(button.id)
 			{
 			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
+			
+			case TRIGGER:
 				if (button.latchedState)
-					DoOneThing();
+					gearBox.highGear();
 				else
-					DoOtherThing();
+					gearBox.lowGear();
 				break;
-			 */
+			 
 			default:
 				break;
 			}
@@ -402,12 +416,12 @@ class Teleop
 					
 			case TOP_MIDDLE: //Manually toggle Claw motors in ejecting direction.
 				if (button.latchedState)
-					//Cube.CubeOuttake();
+					Cube.CubeOuttake(0.50);
 				break;
 				
-			case TOP_BACK: //Manually toggle Claw motors in the intakeing direction.
+			case TOP_BACK: //Manually toggle Claw motors in the intaking direction.
 				if (button.latchedState)
-					//Cube.CubeIntake();
+					Cube.CubeIntake(0.50);
 				break;
 			default:
 				break;

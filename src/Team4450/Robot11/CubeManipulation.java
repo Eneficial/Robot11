@@ -31,10 +31,10 @@ public class CubeManipulation {
 		Devices.balanceServo.set(1);
 		Devices.winchEncoder.reset();
 		
-		if (robot.isAutonomous()) {
-			cubeWristIn();
-		}
-		cubeOpen();	
+		//if (robot.isAutonomous()) {
+			//cubeWristIn();
+		//}
+		//cubeOpen();	
 		dashDisplayUpdate();
 	}
 
@@ -126,7 +126,7 @@ public class CubeManipulation {
 		Util.consoleLog();
 		if (IntakeThread != null)
 			return;
-		//IntakeThread = new AutoIntake();
+		IntakeThread = new Thread();
 		IntakeThread.start();
 	}
 	
