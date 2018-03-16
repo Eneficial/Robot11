@@ -14,7 +14,7 @@ public class GearBox {
 	{
 		Util.consoleLog();
 		this.robot = robot;
-		lowGear(); //Low gear by default
+		highGear(); //Low gear by default
 	}
 	
 	public void dispose() {

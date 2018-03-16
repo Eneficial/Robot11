@@ -100,6 +100,8 @@ class Teleop
 		utilityStick = new JoyStick(Devices.utilityStick, "UtilityStick", JoyStickButtonIDs.TRIGGER, this);
 		//Example on how to track button:
 		//utilityStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
@@ -192,6 +194,8 @@ class Teleop
 				else
 					Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
 			}
+			
+			Cube.powerControl(utilityStick.GetY());
 
 			// Update the robot heading indicator on the DS.
 
@@ -261,9 +265,9 @@ class Teleop
 				
 				case BUTTON_RED_RIGHT: //Open and close wrist - Toggle wrist folding in or out.
 					if (launchPadEvent.control.latchedState) 
-						Cube.cubeOpen();
+						Cube.cubeWristIn(); 
 					else
-						Cube.cubeClose();
+						Cube.cubeWristOut();
 				break;
 					
 			case BUTTON_RED: //Gear shifting
@@ -417,6 +421,8 @@ class Teleop
 			case TOP_MIDDLE: //Manually toggle Claw motors in ejecting direction.
 				if (button.latchedState)
 					Cube.CubeOuttake(0.50);
+				else
+					Cube.CubeStop();
 				break;
 				
 			case TOP_BACK: //Manually toggle Claw motors in the intaking direction.

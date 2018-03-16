@@ -87,7 +87,7 @@ public class CubeManipulation {
 	}
 	
 	public void CubeOuttake(double power) { //Uses motors to bring cubes out
-		Util.consoleLog("%0.2f", power);
+		//Util.consoleLog("%0.2f", power);
 		//Boolean
 		//Boolean
 		Devices.cubeGrabMotors.set(-power); //Motors push out cube - Get actual value
@@ -119,6 +119,84 @@ public class CubeManipulation {
 	{
 		return holdingPosition;
 	}
+	
+	//******** Lift Mechanisms *************//
+	
+		public void powerControl(double power) {
+			if (climbWinch) {
+				if (robot.isClone) {
+					power = power * -1;
+				}
+				
+				if (Devices.winchEncoderEnabled) {
+					if (robot.isComp) {
+						if ((power > 0 && Devices.winchEncoder.get() < 10800) || (power < 0 && !Devices.winchSwitcher.get())) {
+							Devices.climberWinch.set(power);
+						} else {
+							if (Devices.winchSwitcher.get()) {
+								Devices.winchEncoder.reset();
+							}
+							
+							Devices.climberWinch.set(0);
+						}
+					} else {
+						if ((power > 0 && Devices.winchEncoder.get() < 10800) || (power < 0 && Devices.winchSwitcher.get())) {
+							Devices.climberWinch.set(power);
+						} else {
+							if (!Devices.winchSwitcher.get()) {
+								Devices.winchEncoder.reset();
+								Devices.climberWinch.set(0);
+							}
+						}
+					}
+				}
+			} else {
+				Devices.climberWinch.set(power);
+			}
+		}
+		
+		public void raiseLift(int PIDCount) {
+			Util.consoleLog("%d", PIDCount);
+			if (PIDCount != 0)
+			{
+				if (isHoldingPosition()) 
+					holdLift(0);
+				
+				
+				PIDController.setPID(0.0003, 0.0001, 0.0, 0.50);
+				PIDController.setOutputRange(-1, 1);
+				PIDController.setSetpoint(PIDCount);
+				PIDController.setPercentTolerance(5);
+				PIDController.enable();
+				//Boolean
+			} else {
+				PIDController.disable();
+				//Boolean
+			}
+		
+		}
+		
+		public void holdLift(double speed) {
+			Util.consoleLog("%f", speed);
+			if (speed != 0)
+			{
+				if (isHoldingHeight()) {
+					raiseLift(-1);
+				}
+				PIDController.setPID(0.0003, 0.0001, 0.0, speed);
+				PIDController.setSetpoint(Devices.winchEncoder.get());
+				PIDController.setPercentTolerance(5);
+				PIDController.enable();
+				//Boolean
+			} else {
+				PIDController.disable();
+				//Boolean
+			}
+		}
+		
+		
+		
+		
 	
 	//******** Cube Intake Thread *************//
 	
@@ -175,88 +253,10 @@ public class CubeManipulation {
 			
 			}
 	}
-	
-	
-	//******** Lift Mechanisms *************//
-	
-	public void powerControl(double power) {
-		// Clone has reversed winch so we need invert the power so utility stick
-		// operation remains the same.
 		
-		if (climbWinch) {
-			if (robot.isClone) {
-				power = power * -1;
-			}
-			
-			if (Devices.winchEncoderEnabled) {
-				if (robot.isComp) {
-					if ((power > 0 && Devices.winchEncoder.get() < 10800) || (power < 0 && !Devices.winchSwitcher.get())) {
-						Devices.climberWinch.set(power);
-					} else {
-						if (Devices.winchSwitcher.get()) {
-							Devices.winchEncoder.reset();
-						}
-						
-						Devices.climberWinch.set(0);
-					}
-				} else {
-					if ((power > 0 && Devices.winchEncoder.get() < 10800) || (power < 0 && !Devices.winchSwitcher.get())) {
-						Devices.climberWinch.set(power);
-					} else {
-						if (!Devices.winchSwitcher.get()) {
-							Devices.winchEncoder.reset();
-							Devices.climberWinch.set(0);
-						}
-					}
-				}
-			}
-		} else {
-			Devices.climberWinch.set(power);
-		}
-	}
 		
 	
 	
-	public void raiseLift(int PIDCount) {
-		Util.consoleLog("%d", PIDCount);
-		if (PIDCount != 0)
-		{
-			if (isHoldingPosition()) 
-				holdLift(0);
-			
-			
-			PIDController.setPID(0.0003, 0.0001, 0.0, 0.50);
-			PIDController.setOutputRange(-1, 1);
-			PIDController.setSetpoint(PIDCount);
-			PIDController.setPercentTolerance(5);
-			PIDController.enable();
-			//Boolean
-		} else {
-			PIDController.disable();
-			//Boolean
-		}
 	
 	}
-	
-	public void holdLift(double speed) {
-		Util.consoleLog("%f", speed);
-		if (speed != 0)
-		{
-			if (isHoldingHeight()) {
-				raiseLift(-1);
-			}
-			PIDController.setPID(0.0003, 0.0001, 0.0, speed);
-			PIDController.setSetpoint(Devices.winchEncoder.get());
-			PIDController.setPercentTolerance(5);
-			PIDController.enable();
-			//Boolean
-		} else {
-			PIDController.disable();
-			//Boolean
-		}
-	}
-	
-	
-	
-}
 }
