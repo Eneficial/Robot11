@@ -100,9 +100,7 @@ public class Autonomous
 						if (robot.gameMessage.charAt(1) == 'L')
 						{
 							centerBaseline();
-						} 
-						else 
-						{
+						} else {
 							leftZone();	
 						}
 						
@@ -124,9 +122,7 @@ public class Autonomous
 						if (robot.gameMessage.charAt(1) == 'R')
 						{
 							centerBaseline();
-						}
-						else
-						{
+						} else {
 							rightZone();
 						}
 					default:
@@ -134,15 +130,14 @@ public class Autonomous
 						break;
 				}
 				
-			case 6: //2 cube switch auto if color on left
+			case 6: //2 cube center
 				switch (robot.gameMessage.charAt(0))
 				{
 					case 'L':
-						twoSwitch();
+						twoSwitchLeft();
 						break;
-						
 					case 'R':
-						centerBaseline();
+						twoSwitchRight();
 						break;
 
 				}
@@ -269,20 +264,48 @@ public class Autonomous
 		autoDrive(0.50, 1470, true); //Find actual values for this - Move forward
 	}
 	
-	private void twoSwitch()
+	private void twoSwitchLeft()
 	{
-		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
-		autoDrive(0.70, 600, true); //Find actual values for this - Move forward
-		autoRotate(-0.50, 90); //Find actual values for this - Turn to face the switch
-		//Cube.CubeOuttake(); //Outtake the cube
-		//Cube.CubeRaise(program);
-		autoRotate(-0.50, 50); //Find actual values for this - Turn to get the cube in the zone by the scale
-		autoDrive(0.30, 200, true); //Find actual values for this - Move forward a little bit
-		//Cube.CubeIntake(); //Intake the cube on the side closest to the switch
-		autoDrive(-0.30, 200, true); //Find actual values for this - Move backwards
-		autoRotate(0.50, 50); //Find actual values for this - Rotate back in front of the scale
-		//Cube.CubeOuttake(); //Outtake the cube
-		//Cube.CubeRaise(program);
+		//****This is to place 1 cube into the switch!****
+		Cube.cubeClose(); //Hold cube
+		Cube.cubeWristOut(); //Extend wrist
+		Cube.raiseLift(7900); //Raise lift to reach above switch
+		autoDrive(-0.60, 100, true);
+		autoRotate(0.60, 24);
+		autoDrive(-0.60, 2100, true);
+		Cube.CubeOuttake(50); //Outtake the cube
+		Timer.delay(1);
+		Cube.CubeStop();
+		//****Pick up then place into the switch!****
+		autoRotate(0.60, 90);
+		Cube.CubeIntake(50);
+		autoRotate(0.60, -90);
+		Cube.CubeOuttake(50); //Outtake the cube
+		Timer.delay(1);
+		Cube.CubeStop();
+		
+	}
+	
+	private void twoSwitchRight()
+	{
+		//****This is to place 1 cube into the switch!****
+		Cube.cubeClose(); //Hold cube
+		Cube.cubeWristOut(); //Extend wrist
+		Cube.raiseLift(7900); //Raise lift to reach above switch
+		autoDrive(-0.60, 100, true);
+		autoRotate(-0.60, 16);
+		autoDrive(-0.60, 1900, true);
+		Cube.CubeOuttake(50); //Outtake the cube
+		Timer.delay(1);
+		Cube.CubeStop();
+		//****Pick up then place into the switch!****
+		autoRotate(0.60, -90);
+		Cube.CubeIntake(50);
+		autoRotate(0.60, 90);
+		Cube.CubeOuttake(50); //Outtake the cube
+		Timer.delay(1);
+		Cube.CubeStop();
+		
 	}
 
 	//TODO May likely be used, will need modification to work.
