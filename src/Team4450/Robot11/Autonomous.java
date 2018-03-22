@@ -278,6 +278,7 @@ public class Autonomous
 		Cube.CubeStop();
 		//****Pick up then place into the switch!****
 		autoRotate(0.60, 90);
+		Cube.raiseLift(-5000);
 		Cube.CubeIntake(50);
 		autoRotate(0.60, -90);
 		Cube.CubeOuttake(50); //Outtake the cube
@@ -300,6 +301,7 @@ public class Autonomous
 		Cube.CubeStop();
 		//****Pick up then place into the switch!****
 		autoRotate(0.60, -90);
+		Cube.raiseLift(-5000);
 		Cube.CubeIntake(50);
 		autoRotate(0.60, 90);
 		Cube.CubeOuttake(50); //Outtake the cube
