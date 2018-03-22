@@ -124,6 +124,7 @@ public class CubeManipulation {
 	
 		public void powerControl(double power) {
 			if (climbWinch) {
+				
 				if (robot.isClone) {
 					power = power * -1;
 				}
@@ -145,19 +146,21 @@ public class CubeManipulation {
 						} else {
 							if (!Devices.winchSwitcher.get()) {
 								Devices.winchEncoder.reset();
-								Devices.climberWinch.set(0);
 							}
+							Devices.climberWinch.set(0);
 						}
 					}
 				}
 			} else {
 				Devices.climberWinch.set(power);
-			}
+				Devices.partnerWinch.set(power);
+			} 
+	
 		}
 		
 		public void raiseLift(int PIDCount) {
 			Util.consoleLog("%d", PIDCount);
-			if (PIDCount != 0)
+			if (PIDCount >= 0)
 			{
 				if (isHoldingPosition()) 
 					holdLift(0);
@@ -166,7 +169,7 @@ public class CubeManipulation {
 				PIDController.setPID(0.0003, 0.0001, 0.0, 0.50);
 				PIDController.setOutputRange(-1, 1);
 				PIDController.setSetpoint(PIDCount);
-				PIDController.setPercentTolerance(5);
+				PIDController.setPercentTolerance(1);
 				PIDController.enable();
 				//Boolean
 			} else {
