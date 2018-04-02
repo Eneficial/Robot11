@@ -2,7 +2,6 @@
 package Team4450.Robot11;
 
 import Team4450.Lib.*;
-import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -222,7 +221,7 @@ public class Autonomous
 	//	Cube.CubeRaise(program);
 	}
 	
-	private void leftScale()
+	/*private void leftScale()
 	{
 		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
 		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
@@ -242,7 +241,7 @@ public class Autonomous
 		//Cube.CubeOuttake();
 		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
 		//Cube.CubeRaise(program);
-	}
+	}*/
 	
 	private void leftZone()
 	{
@@ -289,24 +288,52 @@ public class Autonomous
 	
 	private void twoSwitchRight()
 	{
+		//		moveLift(LiftHeight.SWITCH);
+				autoDrive(-.40, 100, true); //Move forward a bit
+				autoRotate(-.50, 19); //Turn to switch
+				autoDrive(-.50, 1900, true); //Go there
+		//		ejectCube(); //Eject Cube
+				Timer.delay(1);
+		        autoDrive(0.50, 1729, true); //Backup to pile
+		        Timer.delay(0.3);
+		        	autoRotate(0.50, 35); //Turn to pile || ORIGINAL: 41 degrees
+		//        	moveLift(LiftHeight.GROUND);
+		        	autoDrive(-0.50, 678, true); //Go to pile
+		//        	Lift.getInstance(robot).toggleIntakeCube();
+		        	Timer.delay(0.7);
+		        	autoDrive(0.50, 678, true); //Backup from pile
+		//        	moveLift(LiftHeight.SWITCH);
+		        	Timer.delay(0.5);
+		        	autoRotate(-0.50, 8); //Turn to switch mostly || ORIGINAL: Positive 0.50
+		        	autoDrive(-0.50, 1511, true); //Go most of the way
+		        	autoRotate(-0.50, 26); //Turn to switch || ORIGINAL: Positive 0.50
+		        	autoDrive(-0.50, 400, true); //Go to switch || ORIGINAL: 913
+		//        	ejectCube();
+		
+		//Counter is left+, clockwise is right-
+		
+		
+		
+		
 		//****This is to place 1 cube into the switch!****
-		Cube.cubeClose(); //Hold cube
-		Cube.cubeWristOut(); //Extend wrist
-		Cube.raiseLift(7900); //Raise lift to reach above switch
-		autoDrive(-0.60, 100, true);
-		autoRotate(-0.60, 16);
-		autoDrive(-0.60, 1900, true);
-		Cube.CubeOuttake(50); //Outtake the cube
-		Timer.delay(1);
-		Cube.CubeStop();
+		//Cube.cubeClose(); //Hold cube
+		//Cube.cubeWristOut(); //Extend wrist
+		//Cube.raiseLift(7900); //Raise lift to reach above switch
+		//autoDrive(-0.60, 100, true);
+		//autoRotate(-0.60, 16);
+		//autoDrive(-0.60, 1750, true);
+	//	Cube.CubeOuttake(50); //Outtake the cube
+	//	Timer.delay(1);
+	//	Cube.CubeStop();
 		//****Pick up then place into the switch!****
-		autoRotate(0.60, -90);
-		Cube.raiseLift(-5000);
-		Cube.CubeIntake(50);
-		autoRotate(0.60, 90);
-		Cube.CubeOuttake(50); //Outtake the cube
-		Timer.delay(1);
-		Cube.CubeStop();
+		//autoRotate(0.60, -90);
+		//autoDrive(-0.60, 100, true);
+	//	Cube.raiseLift(-5000);
+	//	Cube.CubeIntake(50);
+		//autoRotate(0.60, 90);
+	//	Cube.CubeOuttake(50); //Outtake the cube
+	//	Timer.delay(1);
+	//	Cube.CubeStop();
 		
 	}
 
@@ -318,13 +345,14 @@ public class Autonomous
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
 		int		angle;
-		double	gain = .03;
+		double	gain = .05;
 		
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
 		Devices.encoder1.reset();
+		Timer.delay(0.3);
 		Devices.navx.resetYaw();
 		
 		while (isAutoActive() && Math.abs(Devices.encoder1.get()) < encoderCounts) 
