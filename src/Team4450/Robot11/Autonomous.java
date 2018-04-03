@@ -265,7 +265,34 @@ public class Autonomous
 	
 	private void twoSwitchLeft()
 	{
-		//****This is to place 1 cube into the switch!****
+		
+//		moveLift(LiftHeight.SWITCH);
+				autoDrive(-.40, 100, true); //Move forward a bit
+				autoRotate(-.50, 19); //Turn to switch
+				autoDrive(-.50, 1900, true); //Go there
+		//		ejectCube(); //Eject Cube
+				Timer.delay(1);
+		        autoDrive(0.50, 1729, true); //Backup to pile
+		        Timer.delay(0.3);
+		        	autoRotate(-0.50, 35); //Turn to pile || ORIGINAL: 41 degrees
+		//        	moveLift(LiftHeight.GROUND);
+		        	autoDrive(-0.50, 678, true); //Go to pile
+		//        	Lift.getInstance(robot).toggleIntakeCube();
+		        	Timer.delay(0.7);
+		        	autoDrive(0.50, 678, true); //Backup from pile
+		//        	moveLift(LiftHeight.SWITCH);
+		        	Timer.delay(0.5);
+		        	autoRotate(0.50, 8); //Turn to switch mostly || ORIGINAL: Positive 0.50
+		        	autoDrive(-0.50, 1511, true); //Go most of the way
+		        	autoRotate(-0.50, 26); //Turn to switch || ORIGINAL: Positive 0.50
+		        	autoDrive(-0.50, 400, true); //Go to switch || ORIGINAL: 913
+		//        	ejectCube();
+		
+		
+		
+		
+		
+		/*//****This is to place 1 cube into the switch!****
 		Cube.cubeClose(); //Hold cube
 		Cube.cubeWristOut(); //Extend wrist
 		Cube.raiseLift(7900); //Raise lift to reach above switch
@@ -282,7 +309,7 @@ public class Autonomous
 		autoRotate(0.60, -90);
 		Cube.CubeOuttake(50); //Outtake the cube
 		Timer.delay(1);
-		Cube.CubeStop();
+		Cube.CubeStop();*/
 		
 	}
 	
@@ -290,13 +317,13 @@ public class Autonomous
 	{
 		//		moveLift(LiftHeight.SWITCH);
 				autoDrive(-.40, 100, true); //Move forward a bit
-				autoRotate(-.50, 19); //Turn to switch
+				autoRotate(-.50, 12); //Turn to switch || ORIGINAL: 19 degrees
 				autoDrive(-.50, 1900, true); //Go there
 		//		ejectCube(); //Eject Cube
 				Timer.delay(1);
 		        autoDrive(0.50, 1729, true); //Backup to pile
 		        Timer.delay(0.3);
-		        	autoRotate(0.50, 35); //Turn to pile || ORIGINAL: 41 degrees
+		        	autoRotate(0.50, 26); //Turn to pile || ORIGINAL: 41 degrees
 		//        	moveLift(LiftHeight.GROUND);
 		        	autoDrive(-0.50, 678, true); //Go to pile
 		//        	Lift.getInstance(robot).toggleIntakeCube();
@@ -304,10 +331,10 @@ public class Autonomous
 		        	autoDrive(0.50, 678, true); //Backup from pile
 		//        	moveLift(LiftHeight.SWITCH);
 		        	Timer.delay(0.5);
-		        	autoRotate(-0.50, 8); //Turn to switch mostly || ORIGINAL: Positive 0.50
+		        	autoRotate(-0.50, 10); //Turn to switch mostly || ORIGINAL: Positive 0.50
 		        	autoDrive(-0.50, 1511, true); //Go most of the way
-		        	autoRotate(-0.50, 26); //Turn to switch || ORIGINAL: Positive 0.50
-		        	autoDrive(-0.50, 400, true); //Go to switch || ORIGINAL: 913
+		        	//autoRotate(-0.50, 35); //Turn to switch || ORIGINAL: Positive 0.50
+		        	//autoDrive(-0.50, 400, true); //Go to switch || ORIGINAL: 913
 		//        	ejectCube();
 		
 		//Counter is left+, clockwise is right-
@@ -354,6 +381,9 @@ public class Autonomous
 		Devices.encoder1.reset();
 		Timer.delay(0.3);
 		Devices.navx.resetYaw();
+		
+		if (power > 0) gain = -gain;
+		
 		
 		while (isAutoActive() && Math.abs(Devices.encoder1.get()) < encoderCounts) 
 		{
