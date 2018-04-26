@@ -14,6 +14,7 @@ public class CubeManipulation {
 	private boolean climbWinch = true;
 	private boolean holdingPosition;
 	private boolean holdingHeight;
+	private boolean openClose, intake, autoIntake, outtake, deployedNot; 
 	
 	private final PIDController PIDController; //For lift
 	private Thread IntakeThread;
@@ -23,18 +24,10 @@ public class CubeManipulation {
 		Util.consoleLog();
 		this.robot = robot;
 		
-		//CubeStop();
-		
 		//Climber initalization
-		PIDController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climberWinch);
-		Devices.deployArms.set(0);
-		Devices.balanceServo.set(1);
+		PIDController = new PIDController(0.0003, 0.00001, 0.0003, 0, Devices.winchEncoder, Devices.climberWinch);
 		Devices.winchEncoder.reset();
-		
-		//if (robot.isAutonomous()) {
-			//cubeWristIn();
-		//}
-		//cubeOpen();	
+
 		dashDisplayUpdate();
 	}
 
@@ -48,59 +41,69 @@ public class CubeManipulation {
 	}
 	
 	private void dashDisplayUpdate() {
-		//Stuff in here for later
+		SmartDashboard.putBoolean("Grabber", openClose);
+		SmartDashboard.putBoolean("Deployed", deployedNot);
+		SmartDashboard.putBoolean("Intake", intake);
+		SmartDashboard.putBoolean("Spit", outtake);
+		SmartDashboard.putBoolean("AutoGrab", autoIntake);
 	}
 	
 	public void cubeOpen() {
 		Util.consoleLog();
-		//SmartDashboard.putBoolean("Grabber", grabberOpen);
+		openClose = true;
 		Devices.grabValve.SetB(); //Is it supposed to be A?
+		dashDisplayUpdate();
 	}
 	
 	public void cubeClose() {
 		Util.consoleLog();
+		openClose = false;
 		Devices.grabValve.SetA(); //Is it supposed to be B?
 		dashDisplayUpdate();
 	}
 	
 	public void cubeWristIn() { //Flips cube intake in
 		Util.consoleLog();
-		//Insert boolean here
-		Devices.wristValve.SetA();
+		deployedNot = false;
+		Devices.wristValve.SetB();
 		dashDisplayUpdate();
 	}
 	
 	public void cubeWristOut() { //Flips cube intake out
 		Util.consoleLog();
-		//Insert boolean here
-		Devices.wristValve.SetB();
+		deployedNot = true;
+		Devices.wristValve.SetA();
 		dashDisplayUpdate();
 		
 	}
 	
 	public void CubeIntake(double power) { //Uses motors to bring the cubes in
-		Util.consoleLog("%0.2f", power);
-		//Boolean
-		//Boolean
+		//Util.consoleLog("%0.2f", power);
+		intake = true;
+		outtake = false;
 		Devices.cubeGrabMotors.set(power); 
 		dashDisplayUpdate();
 	}
 	
 	public void CubeOuttake(double power) { //Uses motors to bring cubes out
-		//Util.consoleLog("%0.2f", power);
-		//Boolean
-		//Boolean
+		Util.consoleLog();
+		intake = false;
+		outtake = true;
 		Devices.cubeGrabMotors.set(-power); //Motors push out cube - Get actual value
 		dashDisplayUpdate();
 	}
 	
 	public void CubeStop() {
 		Util.consoleLog();
-		//Boolean
-		//Boolean
+		intake = false;
+		outtake = false;
 		Devices.cubeGrabMotors.set(0);
-		cubeClose();
+		dashDisplayUpdate();
 	}
+
+	
+	//******** Lift Mechanisms *************//
+	
 	
 	public boolean isClimbWinchSelected()
 	{
@@ -120,7 +123,10 @@ public class CubeManipulation {
 		return holdingPosition;
 	}
 	
-	//******** Lift Mechanisms *************//
+	public void winchSelect() {
+		Util.consoleLog();
+		powerControl(0);
+	}
 	
 		public void powerControl(double power) {
 			if (climbWinch) {
@@ -141,21 +147,21 @@ public class CubeManipulation {
 							Devices.climberWinch.set(0);
 						}
 					} else {
-						if ((power > 0 && Devices.winchEncoder.get() < 10800) || (power < 0 && Devices.winchSwitcher.get())) {
+						if ((power > 0 && Devices.winchEncoder.get() < 14000) || (power < 0 && Devices.winchSwitcher.get())) {
 							Devices.climberWinch.set(power);
 						} else {
-							if (!Devices.winchSwitcher.get()) {
+							if (Devices.winchSwitcher.get()) {
 								Devices.winchEncoder.reset();
 							}
 							Devices.climberWinch.set(0);
 						}
 					}
+				} else {
+					Devices.climberWinch.set(power);
 				}
 			} else {
-				Devices.climberWinch.set(power);
 				Devices.partnerWinch.set(power);
-			} 
-	
+			} 	
 		}
 		
 		public void raiseLift(int PIDCount) {
@@ -165,8 +171,10 @@ public class CubeManipulation {
 				if (isHoldingPosition()) 
 					holdLift(0);
 				
+				if (PIDController.isEnabled())
+					PIDController.disable();
 				
-				PIDController.setPID(0.0003, 0.0001, 0.0, 0.50);
+				PIDController.setPID(0.0003, 0.0001, 0.0003, 0.0);
 				PIDController.setOutputRange(-1, 1);
 				PIDController.setSetpoint(PIDCount);
 				PIDController.setPercentTolerance(1);
@@ -186,9 +194,9 @@ public class CubeManipulation {
 				if (isHoldingHeight()) {
 					raiseLift(-1);
 				}
-				PIDController.setPID(0.0003, 0.0001, 0.0, speed);
+				PIDController.setPID(0.0003, 0.0001, 0.0003, speed);
 				PIDController.setSetpoint(Devices.winchEncoder.get());
-				PIDController.setPercentTolerance(5);
+				PIDController.setPercentTolerance(1);
 				PIDController.enable();
 				//Boolean
 			} else {
@@ -197,6 +205,7 @@ public class CubeManipulation {
 			}
 		}
 		
+	
 		
 		
 		
@@ -207,7 +216,8 @@ public class CubeManipulation {
 		Util.consoleLog();
 		if (IntakeThread != null)
 			return;
-		IntakeThread = new Thread();
+		Util.consoleLog();
+		IntakeThread = new IntakeThread();
 		IntakeThread.start();
 	}
 	
@@ -226,7 +236,7 @@ public class CubeManipulation {
 			this.setName("AutoIntakeThread");
 		}
 		
-		public void threadRun() {
+		public void run() {
 			Util.consoleLog();
 			double stopCurrent;
 			if (robot.isClone) {
@@ -235,14 +245,16 @@ public class CubeManipulation {
 				stopCurrent = 15.0;
 		
 			try {
-				//autoIntake = true;
+				autoIntake = true;
 				dashDisplayUpdate();
 				CubeIntake(0.50);
 				sleep(250);
+				while (!isInterrupted() && robot.isEnabled() && Devices.cubeGrabMotor1.getOutputCurrent() < stopCurrent) {
+					Timer.delay(0.02);
+				}
 				
 				if(!interrupted()) 
-					Util.consoleLog("ERROR 404: Cube missing from intake system. Jk jk, there's actually a cube there.");
-					sleep(500);
+					Util.consoleLog("ERROR 404: Cube not found.");
 			}
 				
 				
@@ -250,8 +262,8 @@ public class CubeManipulation {
 				catch (Throwable e) {e.printStackTrace(Util.logPrintStream);}
 				finally {CubeStop();}
 				
-				//autoIntake = false;
-				//autoIntakeThread = null;
+				autoIntake = false;
+				IntakeThread = null;
 				dashDisplayUpdate();
 			
 			}

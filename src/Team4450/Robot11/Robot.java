@@ -24,11 +24,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "HMW11-03.14.18-01";
+  static final String  	PROGRAM_NAME = "HMW11-04.25.18-09";
 
   public Properties		robotProperties;
   
-  public boolean		isClone = false, isComp = false;
+  public static boolean		isClone = false;
+
+public boolean isComp = false;
     	
   DriverStation.Alliance	alliance;
   int                       location, matchNumber;
@@ -99,7 +101,8 @@ public class Robot extends SampleRobot
    		
    		Devices.encoder1.setReverseDirection(true);
    		Devices.encoder2.setReverseDirection(true);
-             
+        Devices.winchEncoder.setReverseDirection(false);
+        
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
    		

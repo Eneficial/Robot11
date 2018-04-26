@@ -19,7 +19,6 @@ public class GearBox {
 	
 	public void dispose() {
 		Util.consoleLog();
-		
 	}
 	
 	private void dashDisplay()

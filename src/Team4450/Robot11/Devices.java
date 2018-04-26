@@ -24,14 +24,15 @@ public class Devices
 {
 	  // Motor CAN ID/PWM port assignments (1=left-front, 2=left-rear, 3=right-front, 4=right-rear)
 	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
-	  private static WPI_TalonSRX	liftMotor, cubeGrabMotor1, cubeGrabMotor2;
+	  public static WPI_TalonSRX	liftMotor, cubeGrabMotor1, cubeGrabMotor2; // 1 = L, 2 = R.
 	  public static SpeedControllerGroup cubeGrabMotors;
 	  
 	  //Climber things
 	  public final static Talon						climberWinch = new Talon(0);
-	  public final static Talon 					partnerWinch = new Talon(1); //Is my understanding of the "liftWinch" correct? Is that the arm?
-	  public final static Servo						deployArms = new Servo(2);
-	  public final static Servo						balanceServo = new Servo(3);
+	  public final static Talon 					partnerWinch = new Talon(1); 
+	  
+	  public final static Servo						barServo = new Servo(2);
+	  public final static Servo						braceServo = new Servo(3);
 	  
 	  public static DifferentialDrive	robotDrive;
 
@@ -44,6 +45,7 @@ public class Devices
 	  public final static ValveDA		shiftGears = new ValveDA(0);
 	  public final static ValveDA		grabValve = new ValveDA(2);
 	  public final static ValveDA		wristValve = new ValveDA(4);
+	  public final static ValveDA		winchBreak = new ValveDA(6);
 	  	
 	  
 	  public final static AnalogInput				pressureSensor = new AnalogInput(0);
@@ -99,10 +101,10 @@ public class Devices
 		  RRCanTalon.setInverted(false);
 		  
 		  cubeGrabMotor1.setInverted(false);
-		  cubeGrabMotor2.setInverted(true);
+		  cubeGrabMotor2.setInverted(false);
 		  
 		  cubeGrabMotors = new SpeedControllerGroup(cubeGrabMotor1, cubeGrabMotor2);
-	      
+
 	      // Turn on brake mode for CAN Talons.
 	      SetCANTalonBrakeMode(true);
 	      
@@ -118,7 +120,7 @@ public class Devices
 	  
 	  public static void InitializeCANTalon(WPI_TalonSRX talon)
 	  {
-		  //Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
+		  Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
 
 		  talon.clearStickyFaults(0); //0ms means no blocking.
 		  //talon.enableControl();
@@ -167,5 +169,6 @@ public class Devices
 				  RRCanTalon.getMotorOutputVoltage(), RRCanTalon.getOutputCurrent());
 				
 	  }
+	  
 
 }

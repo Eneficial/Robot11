@@ -3,6 +3,7 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous
@@ -12,6 +13,7 @@ public class Autonomous
 	
 	private final CubeManipulation Cube;
 	private final GearBox gearBox;
+	private final Climber climber;
 	
 	Autonomous(Robot robot)
 	{
@@ -20,13 +22,17 @@ public class Autonomous
 		this.robot = robot;		
 		Cube = new CubeManipulation(robot); 
 		gearBox = new GearBox(robot); 
+		climber = new Climber(robot);
 	}
 
 	public void dispose()
 	{
 		Util.consoleLog();
 		if (gearBox != null) gearBox.dispose();
-		if (Cube != null) Cube.dispose();
+		if (Cube != null) { 
+			Cube.CubeStop();
+			Cube.dispose();
+		}
 	}
 	
 	private boolean isAutoActive()
@@ -42,6 +48,12 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 
 		Devices.robotDrive.setSafetyEnabled(false);
+		
+		//Robot position upon initialization
+		climber.servoReset();
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		climber.winchBraker(false);
 
 		//TODO Encoder likely used, so just commenting out.
 		// Initialize encoder.
@@ -56,6 +68,8 @@ public class Autonomous
 		
         // Wait to start motors so gyro will be zero before first movement.
         Timer.delay(.50);
+        
+        Devices.SetCANTalonBrakeMode(true);
 
 		switch (program) //TODO: Pseudo-code 2 cube autos (maybe 3 block autos?)
 		{
@@ -79,7 +93,6 @@ public class Autonomous
 							break;
 							
 						case 'R':
-							
 							centerSwitchRight(); 
 							break;
 							
@@ -95,16 +108,9 @@ public class Autonomous
 					case 'L':
 						leftSwitch();
 						break;
-					case 'R':
-						if (robot.gameMessage.charAt(1) == 'L')
-						{
-							centerBaseline();
-						} else {
-							leftZone();	
-						}
 						
 					default:
-						centerBaseline();
+						sideBaseline();
 						break;
 				} 
 					
@@ -113,23 +119,51 @@ public class Autonomous
 			case 5: 	//goo.gl/MaJi3d <= Visualization of auto
 				switch (robot.gameMessage.charAt(0))
 				{
+				
 					case 'R':
 						rightSwitch();
 						break;
 						
+					default:
+						sideBaseline();
+						break;
+				}
+				break;
+				
+			case 6: //Faster Center Auto
+				switch (robot.gameMessage.charAt(0))
+				{
 					case 'L':
-						if (robot.gameMessage.charAt(1) == 'R')
-						{
-							centerBaseline();
-						} else {
-							rightZone();
-						}
+						centerSwitchLeftFast();
+						break;
+					case 'R':
+						centerSwitchRightFast();
+						break;
 					default:
 						centerBaseline();
 						break;
+							
+
 				}
+				break;
 				
-			case 6: //2 cube center
+			case 7: //S-Curve
+				switch (robot.gameMessage.charAt(0))
+				{
+					case 'L':
+						centerSwitchLeftSCurve();
+						break;
+					case 'R':
+						centerSwitchRightSCurve();
+						break;
+					default:
+						centerBaseline();
+						break;
+
+				}
+				break;
+				
+			case 8: //2 cube center
 				switch (robot.gameMessage.charAt(0))
 				{
 					case 'L':
@@ -137,6 +171,9 @@ public class Autonomous
 						break;
 					case 'R':
 						twoSwitchRight();
+						break;
+					default:
+						centerBaseline();
 						break;
 
 				}
@@ -148,219 +185,135 @@ public class Autonomous
 	
 	private void sideBaseline()
 	{
-		autoDrive(0.50, 2490, true); //Find actual values for this - Drive forward, crossing the baseline
-		//E1: 2490 E2: 1620
+		autoDrive(-0.50, 2490, true);
 	}
 	
 	private void centerBaseline()
 	{
-		//E1: -640 E2: -1250
-		autoDrive(0.30, 1970, true); //Find actual values for this - Drive forward
-		//autoRotate(0.50, -45); //Find actual values for this - Rotate so the robot is facing away from the switch
-		//autoDrive(0.50, -500, true); //Find actual values for this - Drive forward, away from the switch towards the scale
+		autoDrive(-0.30, 1970, true); 
 	}
-	
-	//Center score left E1: 924 E2: 593 - Forward
-	//Turn
-	//E1: 1028 E2: 670 - Forward
-	//Turn
-	//E1: 1118 E2: 720 - Forward
-	
-	//Center score right E1: 1329 E2: 857 - Forward
-	//Turn
-	//E1: 1028 E2: 670
-	//Turn
-	//E1: 1118 E2:720
 	
 	private void centerSwitchLeft()
 	{
-		
-		//Cube.CubeRaise(program);
-		autoDrive(0.50, 924, true); //Find actual values for this - Move forward
-		autoRotate(0.50, -90); //Find actual values for this - Turn to the left
-		autoDrive(0.50, 1028, true); //Find actual values for this - Move forward, face the switch
-		//Cube.CubeOuttake();
-		autoDrive(0.30, 720, true); //Find actual values for this - Drive backwards, away from the switch
-		//Cube.CubeRaise(program);
-		
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoDrive(-0.50, 924, true); 
+		autoRotate(0.50, 90); 
+		autoDrive(-0.60, 928, true); //Find actual values for this - Move forward, face the switch
+		autoRotate(-0.5, 90);
+		autoDrive(-0.4, 880, true);
+		Cube.CubeOuttake(0.50);
+		Timer.delay(.5);
 	}
 	
 	private void centerSwitchRight()
 	{
-		//E1: -994 E2: -2129
-		//Cube.CubeRaise(program);
-		autoDrive(0.50, 1329, true); //Find actual values for this - Move forward
-		autoRotate(-0.50, -90); //Find actual values for this - Turn to the right
-		autoDrive(0.50, 1028, true); //Find actual values for this - Move forward, face the switch
-		//Cube.CubeOuttake();
-		autoDrive(0.30, 720, true); //Find actual values for this - Drive backwards, away from the switch
-		//Cube.CubeRaise(program);
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoDrive(-0.40, 924, true); 
+		autoRotate(-0.50, 90); 
+		autoDrive(-0.60, 900, true); 
+		autoRotate(0.5, 90);
+		autoDrive(-0.4, 880, true);
+		Cube.CubeOuttake(0.50);
+		Timer.delay(.5);
+	}
+	
+	private void centerSwitchLeftFast() {
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoDrive(-0.40, 100, true);
+		autoRotate(0.50, 26);
+		autoDrive(-0.50, 2100, true);
+		Cube.CubeOuttake(0.5);
+		Timer.delay(.5);
+	}
+	
+	private void centerSwitchRightFast() {
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoDrive(-0.40, 100, true);
+		autoRotate(-0.50, 19);
+		autoDrive(-0.50, 1900, true);
+		Cube.CubeOuttake(0.5);
+		Timer.delay(.5);
+	}
+	
+	private void centerSwitchLeftSCurve() {
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoSCurve(-.50, 6, 35, 1050);
+		Cube.CubeOuttake(0.5);
+		Timer.delay(.5);
+		autoDrive(0.50, 1400, true);
+		Cube.raiseLift(0);
+		autoRotate(-0.50, 90);
+		autoDrive(-0.50, 850, true);
+		autoRotate(0.50, 90);
+		Cube.cubeOpen();
+		Cube.CubeIntake(0.50);
+		autoDrive(-0.60, 350, true);
+		Cube.cubeClose();
+		autoDrive(0.60, 300, true);
+	}
+	
+	private void centerSwitchRightSCurve() {
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoSCurve(-.50, -6, 30, 950);
+		Cube.CubeOuttake(0.5);
+		Timer.delay(.5);
+		autoDrive(0.50, 1400, true);
+		Cube.raiseLift(0);
+		autoRotate(0.60, 90);
+		autoDrive(-0.60, 850, true);
+		autoRotate(-0.60, 90);
+		Cube.cubeOpen();
+		Cube.CubeIntake(0.5);
+		autoDrive(-0.60, 350, true);
+		Cube.cubeClose();
+		autoDrive(0.60, 300, true);
 	}
 	
 	private void leftSwitch()
 	{
-	//	Cube.CubeRaise(program);
-		autoDrive(-0.50, 3180, true); //Find actual values for this - Move forward
-		autoRotate(-0.50, 90); //Find actual values for this - Turn to the left
-		autoDrive(-0.50, 340, true); //Find actual values for this - Move forward a little bit
-	//	Cube.CubeOuttake();
-		autoDrive(0.50, 340, true); //Find actual values for this - Drive backwards, away from the switch
-	//	Cube.CubeRaise(program);
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoDrive(-0.50, 3000, true);
+		autoRotate(-0.50, 90);
+		autoDrive(-0.50, 320, true);
+		Cube.CubeOuttake(0.5);
+		Timer.delay(.5);
 	}
 	
 	private void rightSwitch()
 	{
-		//E1 3180; E2 2050 this is on the way to the switch
-		//E1 380; E2 230 After the rotation of the robot
-	//	Cube.CubeRaise(program);
-		autoDrive(-0.50, 3180, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the right
-		autoDrive(-0.50, 340, true); //Find actual values for this - Move forward a little bit
-	//	Cube.CubeOuttake();
-		autoDrive(-0.30, 340, true); //Find actual values for this - Drive backwards, away from the switch
-	//	Cube.CubeRaise(program);
-	}
-	
-	/*private void leftScale()
-	{
-		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
-		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
-		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
-		//Cube.CubeOuttake();
-		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
-		//Cube.CubeRaise(program);
-	}
-	
-	private void rightScale()
-	{
-		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
-		autoDrive(0.50, 800, true); //Find actual values for this - Move forward
-		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
-		autoDrive(0.50, 50, true); //Find actual values for this - Move forward a little bit
-		//Cube.CubeOuttake();
-		autoDrive(0.50, -50, true); //Find actual values for this - Drive backwards, away from the scale
-		//Cube.CubeRaise(program);
-	}*/
-	
-	private void leftZone()
-	{
-				
-		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
-		autoDrive(0.50, 600, true); //Find actual values for this - Move forward
-		autoRotate(0.50, 90); //Find actual values for this - Turn to the left
-		autoDrive(0.50, 300, true); //Find actual values for this - Move forward
-	}
-	
-	private void rightZone()
-	{
-		//E1 4309; E2 2804 these numbers are when the robot is on the way to the platform zone
-		//E1 1470; E2 960 This is how much the robot goes in the platform zone
-
-		//Cube.CubeRaise(program); //TODO: Edit this class so there's some flexibility on how much the cube is raised. Raising the cube to the switch's height won't work on the scale.
-		autoDrive(0.50, 4600, true); //Find actual values for this - Move forward
-		autoRotate(-0.50, 90); //Find actual values for this - Turn to the right
-		autoDrive(0.50, 1470, true); //Find actual values for this - Move forward
+		Cube.cubeWristOut();
+		Cube.cubeClose();
+		Cube.raiseLift(7900);
+		autoDrive(-0.50, 3000, true); 
+		autoRotate(0.50, 90); 
+		autoDrive(-0.50, 320, true); 
+		Cube.CubeOuttake(0.5);
+		Timer.delay(.5);
 	}
 	
 	private void twoSwitchLeft()
 	{
-		
-//		moveLift(LiftHeight.SWITCH);
-				autoDrive(-.40, 100, true); //Move forward a bit
-				autoRotate(-.50, 19); //Turn to switch
-				autoDrive(-.50, 1900, true); //Go there
-		//		ejectCube(); //Eject Cube
-				Timer.delay(1);
-		        autoDrive(0.50, 1729, true); //Backup to pile
-		        Timer.delay(0.3);
-		        	autoRotate(-0.50, 35); //Turn to pile || ORIGINAL: 41 degrees
-		//        	moveLift(LiftHeight.GROUND);
-		        	autoDrive(-0.50, 678, true); //Go to pile
-		//        	Lift.getInstance(robot).toggleIntakeCube();
-		        	Timer.delay(0.7);
-		        	autoDrive(0.50, 678, true); //Backup from pile
-		//        	moveLift(LiftHeight.SWITCH);
-		        	Timer.delay(0.5);
-		        	autoRotate(0.50, 8); //Turn to switch mostly || ORIGINAL: Positive 0.50
-		        	autoDrive(-0.50, 1511, true); //Go most of the way
-		        	autoRotate(-0.50, 26); //Turn to switch || ORIGINAL: Positive 0.50
-		        	autoDrive(-0.50, 400, true); //Go to switch || ORIGINAL: 913
-		//        	ejectCube();
-		
-		
-		
-		
-		
-		/*//****This is to place 1 cube into the switch!****
-		Cube.cubeClose(); //Hold cube
-		Cube.cubeWristOut(); //Extend wrist
-		Cube.raiseLift(7900); //Raise lift to reach above switch
-		autoDrive(-0.60, 100, true);
-		autoRotate(0.60, 24);
-		autoDrive(-0.60, 2100, true);
-		Cube.CubeOuttake(50); //Outtake the cube
-		Timer.delay(1);
-		Cube.CubeStop();
-		//****Pick up then place into the switch!****
-		autoRotate(0.60, 90);
-		Cube.raiseLift(-5000);
-		Cube.CubeIntake(50);
-		autoRotate(0.60, -90);
-		Cube.CubeOuttake(50); //Outtake the cube
-		Timer.delay(1);
-		Cube.CubeStop();*/
+		centerSwitchLeftSCurve();
 		
 	}
 	
 	private void twoSwitchRight()
 	{
-		//		moveLift(LiftHeight.SWITCH);
-				autoDrive(-.40, 100, true); //Move forward a bit
-				autoRotate(-.50, 12); //Turn to switch || ORIGINAL: 19 degrees
-				autoDrive(-.50, 1900, true); //Go there
-		//		ejectCube(); //Eject Cube
-				Timer.delay(1);
-		        autoDrive(0.50, 1729, true); //Backup to pile
-		        Timer.delay(0.3);
-		        	autoRotate(0.50, 26); //Turn to pile || ORIGINAL: 41 degrees
-		//        	moveLift(LiftHeight.GROUND);
-		        	autoDrive(-0.50, 678, true); //Go to pile
-		//        	Lift.getInstance(robot).toggleIntakeCube();
-		        	Timer.delay(0.7);
-		        	autoDrive(0.50, 678, true); //Backup from pile
-		//        	moveLift(LiftHeight.SWITCH);
-		        	Timer.delay(0.5);
-		        	autoRotate(-0.50, 10); //Turn to switch mostly || ORIGINAL: Positive 0.50
-		        	autoDrive(-0.50, 1511, true); //Go most of the way
-		        	//autoRotate(-0.50, 35); //Turn to switch || ORIGINAL: Positive 0.50
-		        	//autoDrive(-0.50, 400, true); //Go to switch || ORIGINAL: 913
-		//        	ejectCube();
-		
-		//Counter is left+, clockwise is right-
-		
-		
-		
-		
-		//****This is to place 1 cube into the switch!****
-		//Cube.cubeClose(); //Hold cube
-		//Cube.cubeWristOut(); //Extend wrist
-		//Cube.raiseLift(7900); //Raise lift to reach above switch
-		//autoDrive(-0.60, 100, true);
-		//autoRotate(-0.60, 16);
-		//autoDrive(-0.60, 1750, true);
-	//	Cube.CubeOuttake(50); //Outtake the cube
-	//	Timer.delay(1);
-	//	Cube.CubeStop();
-		//****Pick up then place into the switch!****
-		//autoRotate(0.60, -90);
-		//autoDrive(-0.60, 100, true);
-	//	Cube.raiseLift(-5000);
-	//	Cube.CubeIntake(50);
-		//autoRotate(0.60, 90);
-	//	Cube.CubeOuttake(50); //Outtake the cube
-	//	Timer.delay(1);
-	//	Cube.CubeStop();
+		centerSwitchRightSCurve();
 		
 	}
 
@@ -379,7 +332,7 @@ public class Autonomous
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
 		Devices.encoder1.reset();
-		Timer.delay(0.3);
+		Devices.encoder2.reset();
 		Devices.navx.resetYaw();
 		
 		if (power > 0) gain = -gain;
@@ -387,7 +340,7 @@ public class Autonomous
 		
 		while (isAutoActive() && Math.abs(Devices.encoder1.get()) < encoderCounts) 
 		{
-			LCD.printLine(4, "encoder=%d", Devices.encoder1.get());
+			LCD.printLine(4, "encoder=%d encoder2 = %d", Devices.winchEncoder.get(), Devices.encoder2.get());
 			
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and
@@ -416,7 +369,7 @@ public class Autonomous
 
 		Devices.robotDrive.tankDrive(0, 0, true);				
 		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder1.get()));
+		Util.consoleLog("end: actual count=%d actual count2=&d", Math.abs(Devices.encoder1.get()), Math.abs(Devices.encoder2.get()));
 	}
 	
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.
@@ -430,14 +383,56 @@ public class Autonomous
 		
 		Devices.navx.resetYaw();
 		
+		Util.consoleLog("AutoRotate: " + power);
 		Devices.robotDrive.tankDrive(power, -power);
 
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
 		
+		Util.consoleLog("AutoRotate: Stop. Adjusted Angle Traveled: " + adjustAngle(Devices.navx.getYaw()));
 		Devices.robotDrive.tankDrive(0, 0);
 	}
 	
+	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
+	{
+		double	gain = .05;
+		
+		Util.consoleLog("pwr=%.2f  curve=%.2f  angle=%d  counts=%d", power, curve, targetAngle, straightEncoderCounts);
+		
+		// We start out driving in a curve until we have turned the desired angle.
+		// Then we drive straight the desired distance then curve back to starting
+		// angle. Curve is - for right, + for left.
+		
+		Devices.robotDrive.curvatureDrive(power, curve * gain, false);
+		
+		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < targetAngle) 
+		{
+			LCD.printLine(6, "angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
+			Util.consoleLog("angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
+			Timer.delay(.020);
+		}
+		
+		autoDrive(power, straightEncoderCounts, false);
+
+		Devices.navx.resetYaw();
+		
+		Devices.robotDrive.curvatureDrive(power*.7, -curve * gain, false);
+		
+		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < (targetAngle-10) && ((Devices.ds.getMatchType() != MatchType.None) ? Devices.ds.getMatchTime() > 5 : true)) 
+		{
+			LCD.printLine(6, "angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
+			Util.consoleLog("angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
+			Timer.delay(.020);
+		}
+		
+		Devices.SetCANTalonBrakeMode(true);
+
+		Devices.robotDrive.tankDrive(0, 0, true);
+	}
 	
+	public float adjustAngle(float angle) {
+		if (Robot.isClone) return angle*(18.0f/15.0f);
+		else return angle;
+	}
 	
 	
 }
